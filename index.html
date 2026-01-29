@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="EventNinjas - Book events, pay, and enjoy your favorite concerts, matches, and festivals">
+  <meta name="keywords" content="events, booking, tickets, concerts, festivals">
+  <meta name="author" content="Ridima Budhlakoti">
+  <title>EventNinjas - Book Events Online</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-left">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">EN</div>
+        <div>
+          <h1>EventNinjas</h1>
+          <div class="small-muted">Book events. Pay. Enjoy.</div>
+        </div>
+      </div>
+
+      <div class="nav-links">
+        <button type="button" onclick="showHome()" aria-label="Browse events">Browse</button>
+        <button type="button" onclick="showUpcoming()" aria-label="View upcoming bookings">Upcoming</button>
+        <button type="button" onclick="showCategories()" aria-label="Event categories">Categories</button>
+        <button type="button" onclick="openModal('terms')" aria-label="Terms and conditions">T&C</button>
+        <button type="button" onclick="openModal('privacy')" aria-label="Privacy policy">Privacy</button>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="searchbar">
+        <label for="searchInput" class="sr-only">Search events</label>
+        <input 
+          type="search" 
+          id="searchInput" 
+          placeholder="Search events, city, venue..." 
+          oninput="renderEvents()" 
+          aria-label="Search events, city, or venue"
+        >
+        <button type="button" class="btn-ghost" onclick="renderEvents()" aria-label="Search">Search</button>
+      </div>
+
+      <div class="nav-actions" id="navActions">
+        <span id="loggedAs" class="small-muted" aria-live="polite"></span>
+        <button type="button" class="btn-ghost" id="loginBtn" onclick="openModal('login')">Login</button>
+        <button type="button" class="btn" id="registerBtn" onclick="openModal('register')">Register</button>
+        <button type="button" class="btn-ghost" id="profileBtn" onclick="openModal('profile')" style="display:none">Profile</button>
+        <button
+          type="button"
+          class="btn-ghost"
+          id="googleBtn"
+          data-google-signin
+          data-inline="inline-block"
+          data-hide-when-disabled="true"
+          onclick="loginWithGoogle()"
+        >Google Login</button>
+        <button type="button" class="btn-ghost" id="manageEventsBtn" onclick="openModal('manageEvents')" style="display:none">Manage</button>
+        <button type="button" class="btn" id="logoutBtn" onclick="logout()" style="display:none">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="wrap" role="main">
+    <!-- Featured Banner -->
+    <section class="featured-banner" id="featuredBanner" aria-label="Featured event">
+      <div class="featured-content">
+        <span class="featured-badge">Featured Event</span>
+        <h2 id="featuredTitle">Grafest 2025</h2>
+        <p id="featuredDesc">The biggest cultural festival of the year!</p>
+        <button class="btn btn-large" onclick="bookEvent(2)">Book Now</button>
+      </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filters" aria-label="Event filters">
+      <div class="filter-group">
+        <label for="categoryFilter">Category:</label>
+        <select id="categoryFilter" class="input" onchange="renderEvents()">
+          <option value="">All Categories</option>
+          <option value="Sports">Sports</option>
+          <option value="Music">Music</option>
+          <option value="Cultural">Cultural</option>
+          <option value="Tech">Tech</option>
+          <option value="Dance">Dance</option>
+          <option value="Theatre">Theatre</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="sortFilter">Sort By:</label>
+        <select id="sortFilter" class="input" onchange="renderEvents()">
+          <option value="date">Date</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+          <option value="popularity">Popularity</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Events Grid -->
+    <section id="eventsGrid" class="grid" aria-label="Events list" role="region"></section>
+
+    <!-- Newsletter Section -->
+    <section class="card newsletter-section" aria-labelledby="newsletterHeading">
+      <div class="body">
+        <h3 id="newsletterHeading" style="color:var(--accent)">📧 Stay Updated!</h3>
+        <p class="muted">Subscribe to our newsletter for exclusive deals and early bird offers.</p>
+        <form onsubmit="event.preventDefault(); subscribeNewsletter();" aria-label="Newsletter subscription">
+          <div class="row">
+            <input 
+              type="email" 
+              id="newsletterEmail" 
+              class="input" 
+              placeholder="Enter your email" 
+              required
+              aria-required="true"
+            >
+            <button type="submit" class="btn">Subscribe</button>
+          </div>
+        </form>
+        <div id="newsletterMsg" class="small-muted" style="margin-top:10px" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- Query Section -->
+    <section class="card" style="margin-top:20px" aria-labelledby="queryHeading">
+      <div class="body">
+        <h3 id="queryHeading" style="color:var(--accent)">💬 Have a query? Ask us</h3>
+        <p class="muted">Send your question about an event — we'll save it (demo only).</p>
+        <form onsubmit="event.preventDefault(); submitQuery();" aria-label="Query form">
+          <div class="row">
+            <input 
+              type="text" 
+              id="qname" 
+              class="input" 
+              placeholder="Your name" 
+              required
+              aria-required="true"
+            >
+            <input 
+              type="email" 
+              id="qemail" 
+              class="input" 
+              placeholder="Email" 
+              required
+              aria-required="true"
+            >
+          </div>
+          <textarea 
+            id="qtext" 
+            class="input" 
+            rows="3" 
+            placeholder="Your question..." 
+            required
+            aria-required="true"
+          ></textarea>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button type="submit" class="btn">Send Query</button>
+            <button type="button" class="btn-ghost" onclick="viewQueries()">View My Queries</button>
+          </div>
+        </form>
+        <div id="queryMsg" class="small-muted" style="margin-top:10px" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer role="contentinfo">
+    <p>
+      EventNinjas &copy; <span id="year"></span> 
+    </p>
+    <nav class="links-row" aria-label="Footer navigation">
+      <a href="#" onclick="event.preventDefault(); openModal('terms')">Terms & Conditions</a>
+      <span aria-hidden="true"> • </span>
+      <a href="#" onclick="event.preventDefault(); openModal('privacy')">Privacy Policy</a>
+      <span aria-hidden="true"> • </span>
+      <a href="#" onclick="event.preventDefault(); openModal('about')">About</a>
+      <span aria-hidden="true"> • </span>
+      <a href="#" onclick="event.preventDefault(); openModal('contact')">Contact</a>
+    </nav>
+    <div class="social-links">
+      <a href="#" aria-label="Facebook">📘</a>
+      <a href="#" aria-label="Twitter">🐦</a>
+      <a href="#" aria-label="Instagram">📷</a>
+      <a href="#" aria-label="LinkedIn">💼</a>
+    </div>
+  </footer>
+
+  <!-- Modal -->
+  <div 
+    id="modal" 
+    class="modal" 
+    onclick="closeModalIfBackground(event)" 
+    role="dialog" 
+    aria-modal="true" 
+    aria-labelledby="modalTitle"
+    aria-hidden="true"
+  >
+    <div 
+      id="modalCard" 
+      class="modal-card" 
+      onclick="event.stopPropagation()" 
+      role="document"
+    ></div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-analytics.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signOut,
+      onAuthStateChanged,
+    } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAzt4X-lsXM6B9hTJJsWZgnM0i41IbsrwE",
+      authDomain: "event-ticket-57442.firebaseapp.com",
+      projectId: "event-ticket-57442",
+      storageBucket: "event-ticket-57442.firebasestorage.app",
+      messagingSenderId: "479257470505",
+      appId: "1:479257470505:web:4f33a781df02c8f07d9e38",
+      measurementId: "G-GCWDXX6VRC",
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    getAnalytics(firebaseApp);
+
+    const auth = getAuth(firebaseApp);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
+    window.firebaseAuth = auth;
+    window.firebaseProvider = provider;
+
+    window.firebaseAuthSignIn = () => signInWithPopup(auth, provider);
+    window.firebaseAuthSignOut = () => signOut(auth);
+
+    onAuthStateChanged(auth, (user) => {
+      window.dispatchEvent(
+        new CustomEvent("firebase-auth-changed", {
+          detail: user
+            ? {
+                displayName: user.displayName,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                photoURL: user.photoURL,
+              }
+            : null,
+        })
+      );
+    });
+
+    window.dispatchEvent(new Event("firebase-auth-ready"));
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>
